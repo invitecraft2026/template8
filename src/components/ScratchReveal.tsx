@@ -14,34 +14,208 @@ import { Reveal } from "./Reveal";
 // 👉 Your scratch card image (white circle centers)
 import scratchBackground from "@/assets/scratch-background.png";
 
-/**
- * IMAGE GEOMETRY (in image pixels)
- * Measured from the 1376 x 768 image. The scratch circles are placed with
- * percentages of these numbers, so they stay glued to the pearl frames at
- * every screen size. If your image has a different size or the circles are
- * in a slightly different spot, only change the numbers below.
- */
-const IMG_W = 1376;
-const IMG_H = 768;
+/* ------------------------------------------------------------------ */
+/*  THEME: change these colors per invitation theme                    */
+/* ------------------------------------------------------------------ */
+const THEME = {
+  /** Website background color: this section never shows white */
+  pageBg: "#fbf2f3",
 
-const CIRCLE_CY = 385; // vertical center of all 3 circles
-const CIRCLE_R = 127; // radius of the white inner circle
-const CIRCLE_CX = [288, 688, 1088]; // horizontal centers: left, middle, right
+  /** Scratch foil gradient (pearl pink -> light blush -> soft lavender) */
+  foil: ["#f3c9d5", "#fdf0f3", "#d6c4e8"] as const,
 
-/** Website background color: used here so this section never shows white */
-const PAGE_BG = "#f2ebe1";
+  /** Fine rings drawn on the foil */
+  ring: "rgba(255,255,255,0.32)",
+
+  /** Glitter colors (white sparkle + champagne gold sparkle) */
+  glitterWhite: "255,255,255",
+  glitterGold: "232,201,138",
+
+  /** Text colors of the revealed value */
+  label: "#a8842f",
+  value: "#a65275",
+};
 
 /** Share of the circle that must be scratched before it auto-reveals */
 const THRESHOLD = 0.5;
 
+/** Add ?debug to the page URL to see the detected circles outlined in red */
+const DEBUG =
+  typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).has("debug");
+
+/* ------------------------------------------------------------------ */
+/*  IMAGE GEOMETRY                                                     */
+/*  The circles are found automatically by scanning the image for the  */
+/*  3 big pure-white circles. If detection ever fails, these fallback  */
+/*  numbers (in image pixels) are used instead.                        */
+/* ------------------------------------------------------------------ */
+type Geo = {
+  w: number; // image width
+  h: number; // image height
+  cy: number; // vertical center of all 3 circles
+  r: number; // radius of the white inner circle
+  cx: number[]; // horizontal centers: left, middle, right
+};
+
+const FALLBACK: Geo = {
+  w: 1376,
+  h: 768,
+  cy: 382,
+  r: 127,
+  cx: [355, 688, 1021],
+};
+
+/** Finds the 3 white circles in the image. Returns null if it cannot. */
+function detectCircles(img: HTMLImageElement): Geo | null {
+  const w = img.naturalWidth;
+  const h = img.naturalHeight;
+
+  if (!w || !h) return null;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+
+  const ctx = canvas.getContext("2d", {
+    willReadFrequently: true,
+  });
+
+  if (!ctx) return null;
+
+  ctx.drawImage(img, 0, 0);
+
+  let data: Uint8ClampedArray;
+
+  try {
+    data = ctx.getImageData(0, 0, w, h).data;
+  } catch {
+    return null;
+  }
+
+  const isWhite = (x: number, y: number) => {
+    if (x < 0 || y < 0 || x >= w || y >= h) return false;
+
+    const i = (y * w + x) * 4;
+
+    return (
+      data[i + 3] > 200 &&
+      data[i] >= 240 &&
+      data[i + 1] >= 240 &&
+      data[i + 2] >= 240
+    );
+  };
+
+  /** How many white pixels in a straight line from (x, y) */
+  const extend = (
+    x: number,
+    y: number,
+    dx: number,
+    dy: number
+  ) => {
+    let n = 0;
+
+    while (isWhite(x + dx * (n + 1), y + dy * (n + 1))) n++;
+
+    return n;
+  };
+
+  const minRun = w * 0.1;
+  const maxRun = w * 0.25;
+
+  /** White runs on one row that are circle-sized */
+  const rowRuns = (y: number) => {
+    const runs: [number, number][] = [];
+    let start = -1;
+
+    for (let x = 0; x <= w; x++) {
+      const white = x < w && isWhite(x, y);
+
+      if (white && start < 0) start = x;
+
+      if (!white && start >= 0) {
+        const len = x - start;
+
+        if (len >= minRun && len <= maxRun) {
+          runs.push([start, x - 1]);
+        }
+
+        start = -1;
+      }
+    }
+
+    return runs;
+  };
+
+  // Try the middle row first, then rows a little above / below
+  let runs: [number, number][] = [];
+
+  for (const k of [0, -1, 1, -2, 2, -3, 3, -4, 4, -5, 5]) {
+    const y = Math.round(h / 2 + k * h * 0.03);
+
+    runs = rowRuns(y);
+
+    if (runs.length === 3) break;
+  }
+
+  if (runs.length !== 3) return null;
+
+  const cxs: number[] = [];
+  const cys: number[] = [];
+  const rs: number[] = [];
+
+  for (const [s, e] of runs) {
+    let cx = (s + e) / 2;
+    let cy = Math.round(h / 2);
+    let r = (e - s + 1) / 2;
+
+    // Refine: measure top/bottom through cx, then left/right through cy
+    for (let pass = 0; pass < 3; pass++) {
+      const x = Math.round(cx);
+      const y = Math.round(cy);
+
+      const up = extend(x, y, 0, -1);
+      const down = extend(x, y, 0, 1);
+
+      cy = y + (down - up) / 2;
+
+      const yy = Math.round(cy);
+
+      const left = extend(x, yy, -1, 0);
+      const right = extend(x, yy, 1, 0);
+
+      cx = x + (right - left) / 2;
+      r = (left + right + 1) / 2;
+    }
+
+    cxs.push(cx);
+    cys.push(cy);
+    rs.push(r);
+  }
+
+  const cy = cys.reduce((a, b) => a + b, 0) / 3;
+  const r = rs.reduce((a, b) => a + b, 0) / 3;
+
+  // Sanity checks: circles must be on one row and a sensible size
+  if (r < w * 0.03 || r > w * 0.15) return null;
+  if (Math.max(...cys) - Math.min(...cys) > h * 0.03) return null;
+
+  return { w, h, cy, r, cx: cxs };
+}
+
+/* ------------------------------------------------------------------ */
+/*  One scratch circle                                                 */
+/* ------------------------------------------------------------------ */
 function ScratchBox({
   label,
   value,
   cx,
+  geo,
 }: {
   label: string;
   value: string;
   cx: number;
+  geo: Geo;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -56,7 +230,7 @@ function ScratchBox({
 
   const [revealed, setRevealed] = useState(false);
 
-  /** Pearlescent sage + champagne foil, matching the invitation */
+  /** Pearlescent pink + lavender foil with champagne glitter */
   const paintCoating = useCallback(
     (canvas: HTMLCanvasElement) => {
       const ctx = canvas.getContext("2d");
@@ -76,14 +250,14 @@ function ScratchBox({
 
       // Base foil gradient
       const base = ctx.createLinearGradient(0, 0, w, h);
-      base.addColorStop(0, "#b7c9b4");
-      base.addColorStop(0.5, "#e6e8d6");
-      base.addColorStop(1, "#cdbf9c");
+      base.addColorStop(0, THEME.foil[0]);
+      base.addColorStop(0.5, THEME.foil[1]);
+      base.addColorStop(1, THEME.foil[2]);
       ctx.fillStyle = base;
       ctx.fillRect(0, 0, w, h);
 
       // Fine concentric rings (like a polished disc)
-      ctx.strokeStyle = "rgba(255,255,255,0.18)";
+      ctx.strokeStyle = THEME.ring;
       ctx.lineWidth = Math.max(1, w * 0.004);
 
       for (let r = w * 0.04; r < w / 2; r += w * 0.025) {
@@ -92,15 +266,16 @@ function ScratchBox({
         ctx.stroke();
       }
 
-      // Glitter
+      // Glitter: mostly white, some champagne gold
       for (let i = 0; i < 280; i++) {
         const x = Math.random() * w;
         const y = Math.random() * h;
         const s = (Math.random() * 1.4 + 0.5) * (w / 180);
+        const gold = Math.random() < 0.3;
 
-        ctx.fillStyle = `rgba(255,255,255,${
-          0.25 + Math.random() * 0.5
-        })`;
+        ctx.fillStyle = `rgba(${
+          gold ? THEME.glitterGold : THEME.glitterWhite
+        },${0.25 + Math.random() * 0.5})`;
         ctx.fillRect(x, y, s, s);
       }
 
@@ -113,7 +288,7 @@ function ScratchBox({
         h * 0.3,
         w * 0.65
       );
-      light.addColorStop(0, "rgba(255,255,255,0.4)");
+      light.addColorStop(0, "rgba(255,255,255,0.45)");
       light.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = light;
       ctx.fillRect(0, 0, w, h);
@@ -262,30 +437,38 @@ function ScratchBox({
     }
   };
 
+  // +1 image pixel so the foil fully covers the white edge
+  const diameter = (geo.r + 1) * 2;
+
   return (
     <div
       ref={wrapRef}
       className="absolute select-none overflow-hidden rounded-full bg-white"
       style={{
-        left: `${(cx / IMG_W) * 100}%`,
-        top: `${(CIRCLE_CY / IMG_H) * 100}%`,
-        width: `${((CIRCLE_R * 2) / IMG_W) * 100}%`,
+        left: `${(cx / geo.w) * 100}%`,
+        top: `${(geo.cy / geo.h) * 100}%`,
+        width: `${(diameter / geo.w) * 100}%`,
         aspectRatio: "1 / 1",
         transform: "translate(-50%, -50%)",
+        outline: DEBUG ? "2px solid red" : undefined,
       }}
     >
       {/* Revealed value, sits on pure white */}
       <div className="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-white text-center">
         <p
-          className="font-semibold uppercase tracking-[0.2em] text-[#8a6a1c]"
-          style={{ fontSize: "max(7px, 1.4cqw)" }}
+          className="font-semibold uppercase tracking-[0.2em]"
+          style={{
+            color: THEME.label,
+            fontSize: "max(7px, 1.4cqw)",
+          }}
         >
           {label}
         </p>
 
         <p
-          className="font-script leading-none text-[#4d1f29]"
+          className="font-script leading-none"
           style={{
+            color: THEME.value,
             fontSize:
               value.length > 3
                 ? "max(15px, 4.2cqw)"
@@ -321,7 +504,44 @@ function ScratchBox({
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  Section                                                            */
+/* ------------------------------------------------------------------ */
 export function ScratchReveal() {
+  const [geo, setGeo] = useState<Geo | null>(null);
+
+  // Find the circles in the image once it has loaded
+  useEffect(() => {
+    let cancelled = false;
+
+    const img = new Image();
+
+    img.onload = () => {
+      if (cancelled) return;
+
+      const found = detectCircles(img);
+
+      if (DEBUG) {
+        console.log(
+          found ? "Detected circles:" : "Detection failed, using fallback",
+          found ?? FALLBACK
+        );
+      }
+
+      setGeo(found ?? FALLBACK);
+    };
+
+    img.onerror = () => {
+      if (!cancelled) setGeo(FALLBACK);
+    };
+
+    img.src = scratchBackground;
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const items = [
     { label: "Day", value: wedding.dayNumber },
     { label: "Month", value: wedding.monthName },
@@ -332,7 +552,7 @@ export function ScratchReveal() {
     <section
       className="relative -mt-10 pb-16 pt-0"
       style={{
-        backgroundColor: PAGE_BG,
+        backgroundColor: THEME.pageBg,
         backgroundImage: "none",
         backdropFilter: "none",
         WebkitBackdropFilter: "none",
@@ -346,7 +566,7 @@ export function ScratchReveal() {
         </Reveal>
 
         <Reveal delay={0.08}>
-          <p className="mt-3 text-[0.65rem] font-medium uppercase tracking-[0.2em] text-[#4d1f29]">
+          <p className="mt-3 text-[0.65rem] font-medium uppercase tracking-[0.2em] text-[#5b3448]">
             ✦ Scratch to reveal the date ✦
           </p>
         </Reveal>
@@ -365,14 +585,16 @@ export function ScratchReveal() {
             className="pointer-events-none block h-auto w-full select-none"
           />
 
-          {items.map((item, i) => (
-            <ScratchBox
-              key={item.label}
-              label={item.label}
-              value={item.value}
-              cx={CIRCLE_CX[i]}
-            />
-          ))}
+          {geo &&
+            items.map((item, i) => (
+              <ScratchBox
+                key={item.label}
+                label={item.label}
+                value={item.value}
+                cx={geo.cx[i]}
+                geo={geo}
+              />
+            ))}
         </div>
       </Reveal>
     </section>

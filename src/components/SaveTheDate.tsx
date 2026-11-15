@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { wedding } from "@/config/wedding";
-import countdownBg from "@/assets/countdown-bg-vertical.png";
+import countdownBg from "@/assets/countdown-bg.png";
 
 import { Reveal } from "./Reveal";
 
@@ -65,10 +65,10 @@ const edgeFade = `linear-gradient(to bottom, transparent 0%, #000 ${EDGE_FADE}%,
 }%, transparent 100%)`;
 
 const numberClass =
-  "tabular font-light leading-none text-[#4d1f29]";
+  "tabular font-light leading-none text-deep";
 
 const labelClass =
-  "font-medium uppercase text-[#a7833d]";
+  "font-medium uppercase text-gold";
 
 export function SaveTheDate() {
   const [timeLeft, setTimeLeft] = useState(() =>
@@ -91,7 +91,7 @@ export function SaveTheDate() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-[#f2ebe1] px-0 py-0 sm:px-6 sm:py-16">
+    <section className="relative overflow-hidden bg-background px-0 py-0 sm:px-6 sm:py-16">
       {/* Full width on mobile (edge to edge), a smaller centered card on
           bigger screens. Text sizes use cqw (1cqw = 1% of this box's width),
           so everything scales with the image. */}
@@ -124,7 +124,7 @@ export function SaveTheDate() {
           {/* Title: small line on top, big script word below */}
           <Reveal>
             <p
-              className="font-medium uppercase text-[#a7833d]"
+              className="font-medium uppercase text-gold"
               style={{
                 fontSize: "max(6px, 2.4cqw)",
                 letterSpacing: "0.28em",
@@ -134,7 +134,7 @@ export function SaveTheDate() {
             </p>
 
             <h3
-              className="font-script leading-none text-[#4d1f29]"
+              className="font-script leading-none text-deep"
               style={{ fontSize: "11cqw", marginTop: "1.2cqw" }}
             >
               Begins
@@ -146,15 +146,15 @@ export function SaveTheDate() {
               style={{ gap: "1.6cqw", marginTop: "2.4cqw" }}
             >
               <span
-                className="bg-[#b8934a]/60"
+                className="bg-gold/60"
                 style={{ width: "8cqw", height: "1px" }}
               />
               <span
-                className="rotate-45 bg-[#b8934a]"
+                className="rotate-45 bg-gold"
                 style={{ width: "1.2cqw", height: "1.2cqw" }}
               />
               <span
-                className="bg-[#b8934a]/60"
+                className="bg-gold/60"
                 style={{ width: "8cqw", height: "1px" }}
               />
             </div>
@@ -168,7 +168,7 @@ export function SaveTheDate() {
               {units.map((u, i) => (
                 <div
                   key={u.label}
-                  className={i > 0 ? "border-l border-[#b8934a]/40" : ""}
+                  className={i > 0 ? "border-l border-gold/40" : ""}
                 >
                   <p className={numberClass} style={{ fontSize: "6.2cqw" }}>
                     {u.value}
@@ -191,7 +191,7 @@ export function SaveTheDate() {
           <Reveal delay={0.2}>
             {/* Time line */}
             <p
-              className="font-medium italic text-[#702b3b]"
+              className="font-medium italic text-gold"
               style={{ fontSize: "max(8px, 2.8cqw)", marginTop: "3.4cqw" }}
             >
               {wedding.time}

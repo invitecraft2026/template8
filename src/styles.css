@@ -67,6 +67,7 @@
   --color-beige: var(--beige);
   --color-deep: var(--deep-text);
   --color-soft-white: var(--soft-white);
+  --color-lavender: var(--lavender);
   --font-script: "Great Vibes", cursive;
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Cormorant Garamond", Georgia, serif;
@@ -76,18 +77,19 @@
 :root {
   --radius: 0.25rem;
 
-  /* Luxury wedding palette */
-  --ivory: oklch(0.9723 0.0113 88);
-  --cream: oklch(0.9521 0.0173 84);
-  --champagne: oklch(0.8158 0.0483 79);
-  --gold: oklch(0.6853 0.0623 78);
-  --gold-soft: oklch(0.7748 0.0451 79);
-  --beige: oklch(0.8452 0.0281 80);
-  --deep-text: oklch(0.4438 0.0248 68);
-  --soft-white: oklch(0.9914 0.0053 89);
+  /* Japanese cherry blossom palette (sakura pink, rose-gold, plum, lavender) */
+  --ivory: oklch(0.9785 0.0075 17.3);
+  --cream: oklch(0.9467 0.0167 3.7);
+  --champagne: oklch(0.8733 0.0473 359.7);
+  --gold: oklch(0.5516 0.1173 355.3);
+  --gold-soft: oklch(0.7857 0.063 355.2);
+  --beige: oklch(0.8894 0.0292 358.9);
+  --deep-text: oklch(0.3801 0.0628 348.4);
+  --soft-white: oklch(0.9889 0.0053 17.2);
+  --lavender: oklch(0.8038 0.0657 304.2);
 
-  /* Website background #f2ebe1 (same color, written in oklch) */
-  --background: oklch(0.9428 0.0153 77.1);
+  /* Website background #fbf2f3 (soft blush, written in oklch) */
+  --background: oklch(0.9684 0.0098 9.5);
   --foreground: var(--deep-text);
   --card: var(--soft-white);
   --card-foreground: var(--deep-text);
@@ -98,7 +100,7 @@
   --secondary: var(--cream);
   --secondary-foreground: var(--deep-text);
   --muted: var(--cream);
-  --muted-foreground: oklch(0.588 0.0221 70);
+  --muted-foreground: oklch(0.5496 0.0526 351.3);
   --accent: var(--champagne);
   --accent-foreground: var(--deep-text);
   --destructive: oklch(0.577 0.145 27.325);
@@ -227,13 +229,13 @@
 
 
 
-/* ===== Website background: #f2ebe1 ===== */
+/* ===== Website background: soft blush (--background) ===== */
 html,
 body,
 #root {
   margin: 0;
   min-height: 100%;
-  background: #f2ebe1;
+  background: var(--background);
 }
 
 html {
@@ -242,7 +244,7 @@ html {
 
 body {
   overflow-x: hidden;
-  background-color: #f2ebe1;
+  background-color: var(--background);
 }
 
 video {
@@ -250,7 +252,7 @@ video {
 }
 
 .wedding-title {
-  color: #f5d9a8;
+  color: #fde0e8;
   text-shadow:
     0 2px 4px rgba(0, 0, 0, 0.65),
     0 4px 18px rgba(0, 0, 0, 0.4);
@@ -271,7 +273,7 @@ video {
 }
 
 .wedding-label {
-  color: #ecd2a7;
+  color: #f7d3de;
   text-shadow:
     0 1px 4px rgba(0, 0, 0, 0.75);
 }

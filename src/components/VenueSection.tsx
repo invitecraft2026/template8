@@ -7,7 +7,7 @@ import { Reveal } from "./Reveal";
 
 export function VenueSection() {
   return (
-    <section className="relative bg-[#f2ebe1] px-6 py-20">
+    <section className="relative bg-background px-6 py-20">
       <div className="relative mx-auto max-w-md">
         <Reveal>
           <SectionHeading
@@ -33,17 +33,17 @@ export function VenueSection() {
 
         <Reveal delay={0.2}>
           <div className="mt-6 text-center">
-            {/* Venue name - deep burgundy */}
-            <h3 className="text-lg font-semibold uppercase tracking-[0.2em] text-[#4d1f29]">
+            {/* Venue name - deep plum */}
+            <h3 className="text-lg font-semibold uppercase tracking-[0.2em] text-deep">
               {wedding.venue.name}
             </h3>
 
-            {/* Address - dark olive */}
-            <p className="mt-2 text-sm font-medium leading-relaxed text-[#3f4a2c]">
+            {/* Address */}
+            <p className="mt-2 text-sm font-medium leading-relaxed text-deep/80">
               {wedding.venue.address}
             </p>
 
-            {/* Button - solid burgundy, ivory text, gold border */}
+            {/* Button - solid sakura rose, white text, soft pink border */}
             <a
               href={mapsDirectionsUrl(wedding.venue.mapsQuery)}
               target="_blank"
@@ -53,19 +53,19 @@ export function VenueSection() {
                 inline-block
                 rounded-md
                 border
-                border-[#b8934a]
-                bg-[#4d1f29]
+                border-gold-soft
+                bg-primary
                 px-6
                 py-3
                 text-[0.62rem]
                 font-semibold
                 uppercase
                 tracking-[0.24em]
-                text-[#fbf5e6]
-                shadow-[0_6px_20px_rgba(77,31,41,0.30)]
+                text-primary-foreground
+                shadow-[0_6px_20px_rgba(166,82,117,0.30)]
                 transition-all
                 duration-300
-                hover:bg-[#3a1620]
+                hover:bg-deep
               "
             >
               Get Directions
