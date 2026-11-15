@@ -1,7 +1,7 @@
 import cornerImg from "@/assets/corner.png";
 
 export function Divider({ className = "" }: { className?: string }) {
-  return (
+  return ( 
     <div className={`flex items-center justify-center gap-3 ${className}`}>
       <span className="gold-rule w-16 sm:w-24" />
       <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden className="text-gold">

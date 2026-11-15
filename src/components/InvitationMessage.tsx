@@ -7,7 +7,7 @@ import { Reveal } from "./Reveal";
 
 export function InvitationMessage() {
   return (
-    <section className="bg-background px-6 py-14 sm:py-24">
+    <section className="bg-blossom px-6 py-14 sm:py-24">
       <div className="mx-auto flex max-w-md flex-col items-center text-center">
         {/* Theme illustration.
             mix-blend-multiply makes the image's light background disappear

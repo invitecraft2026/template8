@@ -6,7 +6,7 @@ import { Reveal } from "./Reveal";
 
 export function DressCode() {
   return (
-    <section className="relative bg-background px-4 py-16 sm:px-6 sm:py-20">
+    <section className="relative bg-blossom-flip px-4 py-16 sm:px-6 sm:py-20">
       <div className="relative mx-auto max-w-md text-center">
         <Reveal>
           <SectionHeading eyebrow="What to wear" title="Dress Code" />

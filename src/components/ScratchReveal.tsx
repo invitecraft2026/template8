@@ -18,9 +18,6 @@ import scratchBackground from "@/assets/scratch-background.png";
 /*  THEME: change these colors per invitation theme                    */
 /* ------------------------------------------------------------------ */
 const THEME = {
-  /** Website background color: this section never shows white */
-  pageBg: "#fbf2f3",
-
   /** Scratch foil gradient (pearl pink -> light blush -> soft lavender) */
   foil: ["#f3c9d5", "#fdf0f3", "#d6c4e8"] as const,
 
@@ -32,8 +29,8 @@ const THEME = {
   glitterGold: "232,201,138",
 
   /** Text colors of the revealed value */
-  label: "#a8842f",
-  value: "#a65275",
+  label: "var(--muted-foreground)",
+  value: "var(--gold)",
 };
 
 /** Share of the circle that must be scratched before it auto-reveals */
@@ -550,14 +547,7 @@ export function ScratchReveal() {
 
   return (
     <section
-      className="relative -mt-10 pb-16 pt-0"
-      style={{
-        backgroundColor: THEME.pageBg,
-        backgroundImage: "none",
-        backdropFilter: "none",
-        WebkitBackdropFilter: "none",
-        boxShadow: "none",
-      }}
+      className="relative -mt-10 bg-blossom-flip pb-16 pt-0"
     >
       {/* Title: plain, no background image */}
       <div className="mx-auto max-w-md px-6 text-center">
@@ -566,7 +556,7 @@ export function ScratchReveal() {
         </Reveal>
 
         <Reveal delay={0.08}>
-          <p className="mt-3 text-[0.65rem] font-medium uppercase tracking-[0.2em] text-[#5b3448]">
+          <p className="mt-3 text-[0.65rem] font-medium uppercase tracking-[0.2em] text-deep">
             ✦ Scratch to reveal the date ✦
           </p>
         </Reveal>

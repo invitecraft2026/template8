@@ -222,6 +222,25 @@
   box-shadow: 0 18px 40px -32px color-mix(in oklab, var(--deep-text) 40%, transparent);
 }
 
+/* Soft blush + lavender glow used as the background of every section.
+   bg-blossom puts the lavender glow on the right, bg-blossom-flip on the
+   left, so stacked sections alternate. Colors follow the theme variables. */
+@utility bg-blossom {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(60% 20% at 50% 14%, color-mix(in oklab, var(--champagne) 55%, transparent), transparent 70%),
+    radial-gradient(55% 22% at 100% 55%, color-mix(in oklab, var(--lavender) 35%, transparent), transparent 70%),
+    radial-gradient(55% 22% at 0% 80%, color-mix(in oklab, var(--champagne) 45%, transparent), transparent 70%);
+}
+
+@utility bg-blossom-flip {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(60% 20% at 50% 14%, color-mix(in oklab, var(--champagne) 55%, transparent), transparent 70%),
+    radial-gradient(55% 22% at 0% 55%, color-mix(in oklab, var(--lavender) 35%, transparent), transparent 70%),
+    radial-gradient(55% 22% at 100% 80%, color-mix(in oklab, var(--champagne) 45%, transparent), transparent 70%);
+}
+
 @utility tabular {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";

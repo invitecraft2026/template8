@@ -7,7 +7,7 @@ import { Reveal } from "./Reveal";
 
 export function VenueSection() {
   return (
-    <section className="relative bg-background px-6 py-20">
+    <section className="relative bg-blossom px-6 py-20">
       <div className="relative mx-auto max-w-md">
         <Reveal>
           <SectionHeading

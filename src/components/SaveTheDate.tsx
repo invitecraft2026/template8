@@ -91,7 +91,7 @@ export function SaveTheDate() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-background px-0 py-0 sm:px-6 sm:py-16">
+    <section className="relative overflow-hidden bg-blossom-flip px-0 py-0 sm:px-6 sm:py-16">
       {/* Full width on mobile (edge to edge), a smaller centered card on
           bigger screens. Text sizes use cqw (1cqw = 1% of this box's width),
           so everything scales with the image. */}
